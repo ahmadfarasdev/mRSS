@@ -1,0 +1,26 @@
+<section id="widget-grid" class="users_list">
+  <div class="row">
+    <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      <%= render partial: 'meetings/list'%>
+    </article>
+  </div>
+</section>
+<script>
+  $(document).ready(function(){
+      $('.modal').on('shown.bs.modal', function (e) {
+          $('html').addClass('freezePage');
+          $('body').addClass('freezePage');
+      });
+      $('.modal').on('hidden.bs.modal', function (e) {
+          $('html').removeClass('freezePage');
+          $('body').removeClass('freezePage');
+      });
+  })
+</script>
+<style>
+  .freezePage{
+    overflow: hidden;
+    height: 100%;
+    position: relative;
+  }
+</style>

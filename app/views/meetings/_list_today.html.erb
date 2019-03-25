@@ -1,0 +1,15 @@
+<% @meetings = Meeting.joins(:meeting_dates).where(meeting_dates: {date: Date.today}).group_by(&:room_id) %>
+<table class="table table-responsive table-hover table-bordered">
+  <% @meetings.each do |room_id, meetings| %>
+  <tr>
+    <td colspan="3" class="room_uppercase">Room: <strong><%= Room.find(room_id).name %></strong></td>
+  </tr>
+      <% meetings.each do |meeting| %>
+          <tr>
+            <td><%= meeting.name %></td>
+            <td><%= meeting.time_start.strftime('%-I:%M %p') %></td>
+            <td><%= meeting.time_end.strftime('%-I:%M %p') %></td>
+          </tr>
+      <% end %>
+  <% end %>
+</table>

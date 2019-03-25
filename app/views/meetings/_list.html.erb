@@ -1,0 +1,298 @@
+
+<section id="widget-grid" class="event_account">
+  <div class="row">
+    <article class="col-xs-12 col-sm-12 ">
+      <div class="row">
+        <div class="col-sm-12 col-md-12 col-lg-12">
+
+          <!-- new widget -->
+          <div class="jarviswidget jarviswidget-color-blueDark"
+               data-widget-editbutton="false"
+               data-widget-deletebutton="false"
+
+          >
+
+            <!-- widget options:
+            usage: <div class="jarviswidget" id="wid-id-0" data-widget-editbutton="false">
+
+            data-widget-colorbutton="false"
+            data-widget-editbutton="false"
+            data-widget-togglebutton="false"
+
+            data-widget-fullscreenbutton="false"
+            data-widget-custombutton="false"
+            data-widget-collapsed="true"
+            data-widget-sortable="false"
+
+            -->
+            <header>
+              <span class="widget-icon"> <i class="fa fa-calendar"></i> </span>
+              <h2 class="room_uppercase"> <%= @room.name %> </h2>
+
+              <div class="widget-toolbar">
+                <!-- add: non-hidden - to disable auto hide -->
+
+              </div>
+              <% if @room %>
+                  <div class="widget-toolbar" role="menu">
+                    <%= link_to 'New meeting', '#', class: 'btn btn-xs btn-primary fa fa-calendar modal-trigger', data: {modal: '#NewMeeting' } %>
+                  </div>
+              <% end %>
+
+            </header>
+
+            <!-- widget div-->
+            <div>
+
+              <div class="widget-body no-padding">
+                <!-- content goes here -->
+                <div class="widget-body-toolbar">
+
+                  <div id="calendar-buttons">
+
+                    <div class="btn-group">
+
+                    </div>
+                  </div>
+                </div>
+                <div id="calendar"></div>
+
+                <!-- end content -->
+              </div>
+
+            </div>
+            <!-- end widget div -->
+          </div>
+          <!-- end widget -->
+
+        </div>
+        <style>
+
+
+          /* jQuery UI Datepicker moving pixels fix */
+          table.ui-datepicker-calendar {border-collapse: separate;}
+          .ui-datepicker-calendar td {border: 1px solid transparent;}
+
+          /* jQuery UI Datepicker hide datepicker helper */
+          #ui-datepicker-div {display:none;}
+
+          /* jQuery UI Datepicker emphasis on selected dates */
+          .ui-datepicker .ui-datepicker-calendar .ui-state-highlight a {
+            background: #743620 none;
+            color: white;
+          }
+
+
+        </style>
+        <script>
+            Date.prototype.addHours = function(h) {
+                this.setTime(this.getTime() + (h*60*60*1000));
+                return this;
+            }
+            function tConvert (time) {
+                // Check correct time format and split into components
+                time = time.toString ().match (/^([01]\d|2[0-3])(:)([0-5]\d)(:[0-5]\d)?$/) || [time];
+
+                if (time.length > 1) { // If time format correct
+                    time = time.slice (1);  // Remove full string match value
+                    time[5] = +time[0] < 12 ? 'AM' : 'PM'; // Set AM/PM
+                    time[0] = +time[0] % 12 || 12; // Adjust hours
+                }
+                return time.join (''); // return adjusted time or original string
+            }
+            $(document).ready(function() {
+                var date = new Date("<%= @date.to_s %>");
+
+                var hdr = {
+                    left: 'title',
+                    center: 'month,agendaWeek,agendaDay',
+                };
+                $('#calendar').fullCalendar({
+                    defaultDate: moment('<%= @date.to_s %>'),
+                    header: hdr,
+                    timezoneParam: 'UTC',
+                    minTime: '06:00:00',
+                    maxTime: '23:59:59',            
+                    nowIndicator: true,
+                    editable: false,
+                    droppable: false, // this allows things to be dropped onto the calendar !!!
+                    select: function (start, end, allDay) {
+                        var title = prompt('event Title:');
+                        if (title) {
+                            calendar.fullCalendar('renderevent', {
+                                    title: title,
+                                    start: start,
+                                    end: end,
+                                    allDay: allDay
+                                }, true // make the event "stick"
+                            );
+                        }
+                        calendar.fullCalendar('unselect');
+                    },
+                    events: [
+                        <% @meetings.each do |meeting| %>
+                        <% meeting.meeting_dates.each do |event| %>
+                        {
+                            id: '<%= meeting.id %>',
+                            title: '<%= meeting.name %>',
+                            start: new Date(<%= event.date.year %>, <%= event.date.month - 1 %>, <%= event.date.day %>, <%= meeting.time_start.hour %>, <%= meeting.time_start.min %>),
+                            end: new Date(<%= event.date.year %>, <%= event.date.month - 1  %>, <%= event.date.day %>, <%= meeting.time_end.hour %>, <%= meeting.time_end.min %>),
+                            className: ["event", "bg-color-blue txt-color-white"],
+                            url_link: '<%= room_meeting_path(meeting.room, meeting) %>',
+                            icon: 'fa-check'
+                        },
+                        <% end %>
+                        <% end %>
+                    ],
+                    dayClick: dayClickCallback,
+                    eventRender: function (event, element, icon) {
+                        if (!event.description == "") {
+                            element.find('.fc-event-title').append("<br/><span class='ultra-light'>" + event.description +
+                                "</span>");
+                        }
+                        if (!event.icon == "") {
+                            element.find('.fc-event-title').append("<i class='air air-top-right fa " + event.icon +
+                                " '></i>");
+                        }
+                        element.bind('click', function() {
+                            $.getScript('/rooms/<%= @room.id %>/meetings/'+event.id+'/edit.js');
+                        });
+                    },
+                    dayRender: function(date, element, view){
+                        element.bind('click', function() {
+                            d = date._d;
+                            ds = d.getFullYear()+ '-' + (d.getMonth() + 1) + '-'+ d.getDate()
+                            $('#meeting_date').val(ds)
+                          $('#NewMeeting').modal()
+                        });
+                    },
+
+                    windowResize: function (event, ui) {
+                        $('#calendar').fullCalendar('render');
+                    }
+                });
+                $('#calendar').fullCalendar('changeView', 'agendaDay');
+                /* hide default buttons */
+//                $('.fc-next-button, .fc-prev-button, .fc-header-right, .fc-today-button').hide();
+
+                var slotDate;
+
+                function dayClickCallback(date){
+                    reset();
+                    d = date._d;
+                    tzDifference = d.getTimezoneOffset()
+                    d = new Date(d.getTime() + tzDifference * 60 * 1000);
+                    console.log(date)
+                    ds = d.getFullYear()+ '-' + (d.getMonth() + 1) + '-'+ d.getDate()
+                    $('#meeting_date').val(ds)
+                    time_start = tConvert(d.toTimeString().substr(0, 5))
+                    time_end = tConvert((d.addHours(1)).toTimeString().substr(0, 5) );
+                    $.getScript('/rooms/<%= @room.id %>/meetings/new.js?time_start=' + time_start + '&time_end=' + time_end+ '&date=' + ds);
+                    console.log(time_start)
+//                    $('#meeting_time_start').select2('destroy')
+//
+//                    $('#meeting_time_start').val(time_start.replace(' ', ''))
+//                    $('#meeting_time_start').select2({})
+//                    $('#meeting_time_end').select2('destroy')
+//                    $('#meeting_time_end').val(time_end.replace(' ', ''))
+//
+//                    $('#meeting_time_end').select2({})
+//                    $('#NewMeeting').modal();
+                }
+
+                function eventRenderCallback(event,element){
+                    element.on("click",function(){
+                        dblClickFunction(event.start)
+                    });
+                }
+
+                function forgetSlot(){
+                    slotDate = null;
+                    $("#calendar").off("mousemove", forgetSlot);
+                }
+
+                function dblClickFunction(date){
+                    alert(date);
+                }
+
+                $("#calendar").dblclick(function() {
+                    if(slotDate){
+                        dblClickFunction(slotDate);
+                    }
+                });
+
+
+                $('#mt').click(function () {
+                    $('#calendar').fullCalendar('changeView', 'month');
+                });
+
+                $('#ag').click(function () {
+                    $('#calendar').fullCalendar('changeView', 'agendaWeek');
+                });
+
+                $('#td').click(function () {
+                    $('#calendar').fullCalendar('changeView', 'agendaDay');
+                });
+            });
+            setTimeout(function(){window.location.reload()}, 1000 * 60 * 10)
+
+        </script>
+      </div>
+    </article>
+  </div>
+</section>
+<div hidden>
+  <% @meetings.each do |meeting| %>
+      <span id="meeting_<%= meeting.id %>"><%= meeting.description.to_s.html_safe %></span>
+  <% end %>
+</div>
+<p id="dialog" title="" hidden>
+  <a id="link_meeting" href='' class="btn btn-default pull-right"> link</a>
+  <span id="content_dialog"></span>
+</p>
+
+<div class="modal fade" id="NewMeeting" tabindex="-1" role="dialog" aria-labelledby="NewMeeting" style="z-index: 9999">
+  <div class="modal-dialog" role="document"  style="width: 100%">
+    <div class="modal-content" style="overflow-x: hidden; overflow-y: scroll; -webkit-overflow-scrolling: touch;">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">New Meeting</h4>
+      </div>
+      <div class="modal-body" id="new_meeting_body">
+
+      <%= render partial: 'meetings/form',
+                 locals: {
+                     meeting: Meeting.new(room_id: @room.id),
+                     room: @room,
+                     wid_id: 'meeting',
+                     wid_title: 'New Meeting'
+                 } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="EditMeeting" tabindex="-1" role="dialog" aria-labelledby="EditMeeting" style="z-index: 9999">
+  <div class="modal-dialog" role="document" style="width: 100%">
+    <div class="modal-content" style="overflow-x: hidden; overflow-y: scroll; -webkit-overflow-scrolling: touch;">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Edit Meeting</h4>
+      </div>
+      <div class="modal-body" id="edit_meeting_body">
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<style>
+  .fc-time:before, .fc-time:after {
+    display: none;
+  }
+    .fc-time span{
+      display: inline-block !important; ;
+    }
+</style>

@@ -1,0 +1,26 @@
+<h1><%= @user.name %></h1>
+<fieldset>
+  <legend>Password changes</legend>
+  <%= form_for(@user, url: change_password_user_path(@user), html: { class: 'form-horizontal ', method: :put }) do |f| %>
+      <div class="form-group">
+        <%= f.label 'Password', class: 'col-md-2 control-label' %>
+        <div class="col-md-9">
+          <%= f.password_field :password, autocomplete: "new-password" , class: 'form-control' %>
+        </div>
+      </div>
+
+       <div class="form-group">
+        <%= f.label 'password confirmation', class: 'col-md-2 control-label' %>
+        <div class="col-md-9">
+          <%= f.password_field :password_confirmation, autocomplete: "new-password" , class: 'form-control' %>
+        </div>
+      </div>
+
+      <div class="form-group" >
+        <div class="col-md-11">
+          <%= f.submit 'Save', class: 'btn btn-success pull-right' %>
+        </div>
+      </div>
+  <% end %>
+
+</fieldset>

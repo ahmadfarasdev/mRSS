@@ -1,0 +1,25 @@
+<table style="width: 100%" class="table table-responsive" id="users_table">
+  <thead>
+  <tr id="users_input">
+    <th>#</th>
+    <th>Email</th>
+    <th> login </th>
+
+    <td></td>
+    <td></td>
+  </tr>
+  </thead>
+
+  <tbody>
+  <% @users.each do |user | %>
+      <tr>
+        <td <%= link_to(user.id, user)  %> </td>
+        <td> <%=  user.email %></td>
+        <td> <%=  user.login %></td>
+
+        <td><%= edit_link(user, 'data-turbolinks'=> false) %></td>
+        <td><%= delete_link(user, 'data-turbolinks'=> false) %></td>
+      </tr>
+  <% end %>
+  </tbody>
+</table>

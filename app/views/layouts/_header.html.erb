@@ -1,0 +1,45 @@
+<header id="header">
+  <div id="logo-group" style="width: 100% !important; max-width: 500px">
+
+    <!-- PLACE YOUR LOGO HERE -->
+    <span id="logo1" style="margin: 10px;">
+      <%= link_to "#{(Setting.first.try(:logo) and Setting.first.try(:logo_url) ) ? image_tag( Setting.first.logo_url, alt: '', size: '30x30' ) : ''} #{Setting['application_name']}".html_safe , root_path %>
+    </span>
+    <!-- END LOGO PLACEHOLDER -->
+
+  </div>
+  <div class="pull-right">
+    <!-- fullscreen button -->
+    <div id="fullscreen" class="btn-header transparent pull-right">
+      <span> <a href="javascript:void(0);" data-action="launchFullscreen" title="Full Screen"><i class="fa fa-arrows-alt"></i></a> </span>
+    </div>
+    <!-- end fullscreen button -->
+    <% if current_user %>
+        <!-- logout button -->
+        <div id="logout" class="btn-header transparent pull-right">
+        <span>
+          <%= link_to(destroy_user_session_path, title: 'Sign Out', data: {action: 'userLogout', 'logout-msg' => 'You can improve your security further after logging out by closing this opened browser'}) do %>
+            <i class="fa fa-sign-out"></i>
+          <% end %>
+        </span>
+        </div>
+        <!-- end logout button -->
+    <% else %>
+        <!-- login button -->
+        <div id="login" class="btn-header transparent pull-right">
+        <span>
+          <%= link_to(new_user_session_path, title: 'Sign In') do %>
+            <i class="fa fa-sign-in"></i>
+          <% end %>
+        </span>
+        </div>
+        <!-- end login button -->
+    <% end %>
+    <!-- collapse menu button -->
+
+    <div id="hide-menu" class="btn-header pull-right">
+      <span> <a href="javascript:void(0);" data-action="toggleMenu" title="Collapse Menu"><i class="fa fa-reorder"></i></a> </span>
+    </div>
+  </div>
+
+</header>

@@ -1,0 +1,40 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="pull-right links">
+
+      <%= link_to 'Delete', room_meeting_path(@room, @meeting), method: :delete, data: {confirm: 'Are you sure?'}, class: 'btn btn-danger' %>
+      <%= link_to 'Edit', edit_room_meeting_path(@room, @meeting), class: 'btn btn-success' %>
+      <%= link_to 'Back', room_path(@room) , class: 'btn btn-warning' %>
+    </div>
+  </div>
+</div>
+<p>
+  <strong>Name:</strong>
+  <%= @meeting.name %>
+</p>
+
+<p>
+  <strong>Description:</strong>
+  <%= @meeting.description.to_s.html_safe %>
+</p>
+
+<p>
+  <strong>Room:</strong>
+  <%= @meeting.room %>
+</p>
+
+<p>
+  <strong>Date:</strong>
+  <%= @meeting.date.strftime('%d %B %Y') %>
+</p>
+
+<p>
+  <strong>Time start:</strong>
+  <%= @meeting.time_start.strftime('%I:%M %p') %>
+</p>
+
+<p>
+  <strong>Time end:</strong>
+  <%= @meeting.time_end.strftime('%I:%M %p') %>
+</p>
+

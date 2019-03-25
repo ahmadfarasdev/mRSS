@@ -1,0 +1,4 @@
+application_name:
+  default: "mRSS"
+format_date:
+  default: "%d/%m/%Y"
